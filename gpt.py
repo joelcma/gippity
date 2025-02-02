@@ -192,8 +192,8 @@ def parse_response_for_updates(response):
         inside_file_changes = False
 
         for line in lines:
-            if line.startswith("<filechange: "):
-                current_file = line[len("<filechange: ") :].strip().rstrip(">")
+            if line.startswith("<filechange:"):
+                current_file = line[len("<filechange:") :].strip().rstrip(">")
                 updates[current_file] = []
                 inside_file_changes = True
             elif line.startswith("</filechange>"):
@@ -203,6 +203,8 @@ def parse_response_for_updates(response):
 
         for file in updates:
             updates[file] = "\n".join(updates[file])
+
+        logger.info(f"Parsed file updates: {updates}")  # Debugging log
 
         return updates
     except Exception as e:
@@ -215,21 +217,20 @@ def apply_file_updates(updates):
         try:
             if DEBUG_FILE_UPDATES:
                 logger.info(f"Would have updated file: {file_path}")
-                logger.info(f"New content: {new_content}")
+                logger.info(f"New content:\n{new_content}")
                 continue
 
-            # Ask for permission before making changes
-            action = (
-                input(f"Do you want to update the file: {file_path}? [y/n]: ")
-                .strip()
-                .lower()
-            )
-            if action == "y" or action == "yes" or action == "":
-                with open(file_path, "w", encoding="utf-8") as f:
-                    f.write(new_content)
-                logger.info(f"Updated file: {file_path}")
-            else:
-                logger.info(f"Skipped updating file: {file_path}")
+            # Comment out the manual confirmation for testing
+            # action = input(f"Do you want to update the file: {file_path}? [y/n]: ").strip().lower()
+            # if action == "y" or action == "yes" or action == "":
+
+            with open(file_path, "w", encoding="utf-8") as f:
+                f.write(new_content)
+            logger.info(f"Updated file: {file_path}")
+
+            # else:
+            #     logger.info(f"Skipped updating file: {file_path}")
+
         except IOError as e:
             logger.error(f"Failed to update {file_path}: {e}")
 
