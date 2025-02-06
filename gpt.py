@@ -93,6 +93,11 @@ def read_files_content_with_lines(paths):
                         if len(content) > MAX_SIZE:
                             logger.warning(f"Skipping {file_path} as it is too large.")
                             continue
+                        # Remove wrappers like ```<python/sql>``` from content
+                        content = re.sub(
+                            r"^(```\w*\n)|(```)$", "", content, flags=re.MULTILINE
+                        )
+
                         structured_content += (
                             f"\n<file:{file_path}>\n{content}\n</file>\n"
                         )
@@ -105,6 +110,8 @@ def read_files_content_with_lines(paths):
                 sys.exit(1)
 
         if content:
+            # Remove wrappers like ```<python/sql>``` from content
+            content = re.sub(r"^(```\w*\n)|(```)$", "", content, flags=re.MULTILINE)
             structured_content += f"\n<file:{file_path}>\n{content}\n</file>\n"
     return structured_content
 
